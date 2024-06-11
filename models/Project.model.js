@@ -54,3 +54,17 @@ const projectSchema = new mongoose.Schema({
 const Project = mongoose.model("Project", projectSchema);
 
 module.exports = Project;
+
+
+// {
+//   "title": "Speculative Sensing",
+//   "description": "This is a sample project description.",
+//   "short_description": "Short description of the project.",
+//   "year": 2022,
+//   "images_url": [
+//     "https://www.christiandoeller.de/Images/works/specSens/sps2_4_Q0A9379.jpeg",
+//     "hhttps://www.christiandoeller.de/Images/works/specSens/sps1_Q0A9355.jpeg"
+//   ],
+//   "tags": "installation",
+//   "link": "https://www.christiandoeller.de/specSens.html"
+// }

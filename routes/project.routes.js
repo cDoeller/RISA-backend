@@ -16,7 +16,7 @@ router.get("/", (req, res) => {
 });
 
 // POST :: project
-router.post("/", (req,res =>{
+router.post("/", (req,res) => {
     Project.create(req.body)
     .then((newProject) => {
         res.status(200).json({ newProject });
@@ -25,7 +25,7 @@ router.post("/", (req,res =>{
         console.log(err);
         res.status(400).json(err);
       });
-}))
+});
 
 // EXPORT ROUTER
 module.exports = router;
