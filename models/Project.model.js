@@ -9,10 +9,6 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: [true, "Description is Required."],
   },
-  short_description: {
-    type: String,
-    required: [true, "Short description is Required."],
-  },
   contributors: [
     {
       type: mongoose.Schema.Types.ObjectId,

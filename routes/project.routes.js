@@ -16,15 +16,15 @@ router.get("/", (req, res) => {
 });
 
 // POST :: project
-router.post("/", (req,res) => {
-    Project.create(req.body)
+router.post("/", (req, res) => {
+  Project.create(req.body)
     .then((newProject) => {
-        res.status(200).json({ newProject });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).json(err);
-      });
+      res.status(200).json(newProject);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
 });
 
 // EXPORT ROUTER
