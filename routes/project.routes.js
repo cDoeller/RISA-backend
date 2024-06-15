@@ -2,6 +2,8 @@
 const Project = require("../models/Project.model");
 // import Router Object
 const router = require("express").Router();
+// import auth middleware
+const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
 // GET :: all projects
 router.get("/", (req, res) => {
@@ -16,7 +18,7 @@ router.get("/", (req, res) => {
 });
 
 // POST :: project
-router.post("/", (req, res) => {
+router.post("/", isAuthenticated, (req, res) => {
   Project.create(req.body)
     .then((newProject) => {
       res.status(200).json(newProject);
