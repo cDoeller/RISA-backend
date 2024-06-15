@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const contributorSchema = new mongoose.Schema({
+  label: {
+    type: String,
+    required: [true, "Name is Required."],
+  },
   name: {
     type: String,
     required: [true, "Name is Required."],
