@@ -8,6 +8,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 // GET :: all projects
 router.get("/", (req, res) => {
     Contributor.find()
+    .populate("projects")
     .then((Contributors) => {
       res.status(200).json(Contributors);
     })
