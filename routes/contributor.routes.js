@@ -5,7 +5,7 @@ const router = require("express").Router();
 // import auth middleware
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
-// GET :: all projects
+// GET 
 router.get("/", (req, res) => {
     Contributor.find()
     .populate("projects")
@@ -18,7 +18,7 @@ router.get("/", (req, res) => {
     });
 });
 
-// POST :: project
+// POST 
 router.post("/", isAuthenticated, (req, res) => {
     Contributor.create(req.body)
     .then((newContributor) => {
@@ -29,6 +29,19 @@ router.post("/", isAuthenticated, (req, res) => {
       res.status(400).json(err);
     });
 });
+
+// DELETE
+router.delete("/:id", isAuthenticated, (req,res)=>{
+  Contributor.findByIdAndDelete(req.params.id)
+  .then((deletedContributor) => {
+    console.log(deletedContributor);
+    res.status(200).json(deletedContributor);
+  })
+  .catch((err) => {
+    console.log(err);
+    res.status(400).json(err);
+  });
+})
 
 // EXPORT ROUTER
 module.exports = router;

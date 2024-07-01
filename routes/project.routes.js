@@ -31,5 +31,18 @@ router.post("/", isAuthenticated, (req, res) => {
     });
 });
 
+// DELETE
+router.delete("/:id", isAuthenticated, (req,res)=>{
+  Project.findByIdAndDelete(req.params.id)
+  .then((deletedProject) => {
+    console.log(deletedProject);
+    res.status(200).json(deletedProject);
+  })
+  .catch((err) => {
+    console.log(err);
+    res.status(400).json(err);
+  });
+})
+
 // EXPORT ROUTER
 module.exports = router;
