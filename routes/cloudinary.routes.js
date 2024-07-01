@@ -20,7 +20,7 @@ router.post(
 // body form key muste be called "files"
 router.post(
   "/multiple",
-  fileUploader.array("files", 5),
+  fileUploader.array("files", 6),
   isAuthenticated,
   (req, res, next) => {
     if (!req.files || req.files.length === 0) {
