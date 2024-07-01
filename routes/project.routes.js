@@ -19,6 +19,20 @@ router.get("/", (req, res) => {
     });
 });
 
+// GET :: one Project
+router.get("/:id", (req, res) => {
+  Project.findById(req.params.id)
+    .populate("contributors")
+    .populate("research_project")
+    .then((Project) => {
+      res.status(200).json(Project);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // POST :: project
 router.post("/", isAuthenticated, (req, res) => {
   Project.create(req.body)
@@ -31,18 +45,30 @@ router.post("/", isAuthenticated, (req, res) => {
     });
 });
 
-// DELETE
-router.delete("/:id", isAuthenticated, (req,res)=>{
-  Project.findByIdAndDelete(req.params.id)
-  .then((deletedProject) => {
-    console.log(deletedProject);
-    res.status(200).json(deletedProject);
-  })
-  .catch((err) => {
-    console.log(err);
-    res.status(400).json(err);
+  // UPDATE one project
+  router.patch("/:id", isAuthenticated, (req, res) => {
+    Project.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      .then((updatedProject) => {
+        res.status(200).json(updatedProject);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(err);
+      });
   });
-})
+  
+// DELETE
+router.delete("/:id", isAuthenticated, (req, res) => {
+  Project.findByIdAndDelete(req.params.id)
+    .then((deletedProject) => {
+      console.log(deletedProject);
+      res.status(200).json(deletedProject);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
 
 // EXPORT ROUTER
 module.exports = router;
