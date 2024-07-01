@@ -31,7 +31,7 @@ const projectSchema = new mongoose.Schema({
     ref: "Project",
   },
   tags: {
-    type: String,
+    type: [String],
     enum: {
       values: [
         "installation",
