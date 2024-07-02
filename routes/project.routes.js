@@ -9,7 +9,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 router.get("/", (req, res) => {
   Project.find()
     .populate("contributors")
-    .populate("research_project")
+    .populate("umbrella_project")
     .then((Projects) => {
       res.status(200).json(Projects);
     })
@@ -23,7 +23,7 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   Project.findById(req.params.id)
     .populate("contributors")
-    .populate("research_project")
+    .populate("umbrella_project")
     .then((Project) => {
       res.status(200).json(Project);
     })

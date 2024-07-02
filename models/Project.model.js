@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const projectSchema = new mongoose.Schema({
-  label:{
+  label: {
     type: String,
     required: [true, "Title is Required."],
   },
@@ -26,10 +26,20 @@ const projectSchema = new mongoose.Schema({
     type: [String],
     required: [true, "Upload at least one image"],
   },
-  research_project: {
+  is_umbrella_project: {
+    type: Boolean,
+    default: false,
+  },
+  umbrella_project: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
   },
+  related_projects: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+    },
+  ],
   tags: {
     type: [String],
     enum: {
@@ -54,7 +64,6 @@ const projectSchema = new mongoose.Schema({
 const Project = mongoose.model("Project", projectSchema);
 
 module.exports = Project;
-
 
 // {
 //   "title": "Speculative Sensing",
