@@ -5,9 +5,9 @@ const router = require("express").Router();
 // import auth middleware
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
-// GET 
+// GET
 router.get("/", (req, res) => {
-    Contributor.find()
+  Contributor.find()
     .populate("projects")
     .then((Contributors) => {
       res.status(200).json(Contributors);
@@ -18,9 +18,22 @@ router.get("/", (req, res) => {
     });
 });
 
-// POST 
+// GET :: id
+router.get("/:id", isAuthenticated, (req, res) => {
+  Contributor.findById(req.params.id)
+    .populate("projects")
+    .then((Contributors) => {
+      res.status(200).json(Contributors);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
+// POST
 router.post("/", isAuthenticated, (req, res) => {
-    Contributor.create(req.body)
+  Contributor.create(req.body)
     .then((newContributor) => {
       res.status(200).json(newContributor);
     })
@@ -30,18 +43,31 @@ router.post("/", isAuthenticated, (req, res) => {
     });
 });
 
+// UPDATE / PATCH
+router.patch("/:id", isAuthenticated, (req, res) => {
+  Contributor.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then((updatedContributor) => {
+      console.log(updatedContributor);
+      res.status(200).json(updatedContributor);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // DELETE
-router.delete("/:id", isAuthenticated, (req,res)=>{
+router.delete("/:id", isAuthenticated, (req, res) => {
   Contributor.findByIdAndDelete(req.params.id)
-  .then((deletedContributor) => {
-    console.log(deletedContributor);
-    res.status(200).json(deletedContributor);
-  })
-  .catch((err) => {
-    console.log(err);
-    res.status(400).json(err);
-  });
-})
+    .then((deletedContributor) => {
+      console.log(deletedContributor);
+      res.status(200).json(deletedContributor);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
 
 // EXPORT ROUTER
 module.exports = router;
