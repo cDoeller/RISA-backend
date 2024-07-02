@@ -10,6 +10,7 @@ router.get("/", (req, res) => {
   Project.find()
     .populate("contributors")
     .populate("umbrella_project")
+    .populate("related_projects")
     .then((Projects) => {
       res.status(200).json(Projects);
     })
@@ -24,8 +25,26 @@ router.get("/:id", (req, res) => {
   Project.findById(req.params.id)
     .populate("contributors")
     .populate("umbrella_project")
+    .populate("related_projects")
     .then((Project) => {
       res.status(200).json(Project);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
+// GET / ADMIN SEARCH
+router.get("/search-cms", isAuthenticated, (req, res) => {
+  const { title } = req.query;
+
+  let searchQuery = {};
+  if (title) searchQuery.title = title;
+
+  Project.find(searchQuery)
+    .then((projects) => {
+      res.status(200).json(projects);
     })
     .catch((err) => {
       console.log(err);
@@ -45,18 +64,18 @@ router.post("/", isAuthenticated, (req, res) => {
     });
 });
 
-  // UPDATE one project
-  router.patch("/:id", isAuthenticated, (req, res) => {
-    Project.findByIdAndUpdate(req.params.id, req.body, { new: true })
-      .then((updatedProject) => {
-        res.status(200).json(updatedProject);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).json(err);
-      });
-  });
-  
+// UPDATE one project
+router.patch("/:id", isAuthenticated, (req, res) => {
+  Project.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then((updatedProject) => {
+      res.status(200).json(updatedProject);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // DELETE
 router.delete("/:id", isAuthenticated, (req, res) => {
   Project.findByIdAndDelete(req.params.id)
