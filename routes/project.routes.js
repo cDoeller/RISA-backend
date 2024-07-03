@@ -20,6 +20,21 @@ router.get("/", (req, res) => {
     });
 });
 
+// GET / ADMIN SEARCH
+router.get("/search-cms", isAuthenticated, (req, res) => {
+  const { title } = req.query;
+  const searchQuery = { title: { $regex: title, $options: "i" } };
+
+  Project.find(searchQuery)
+    .then((projects) => {
+      res.status(200).json(projects);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // GET :: one Project
 router.get("/:id", (req, res) => {
   Project.findById(req.params.id)
@@ -28,23 +43,6 @@ router.get("/:id", (req, res) => {
     .populate("related_projects")
     .then((Project) => {
       res.status(200).json(Project);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json(err);
-    });
-});
-
-// GET / ADMIN SEARCH
-router.get("/search-cms", isAuthenticated, (req, res) => {
-  const { title } = req.query;
-
-  let searchQuery = {};
-  if (title) searchQuery.title = title;
-
-  Project.find(searchQuery)
-    .then((projects) => {
-      res.status(200).json(projects);
     })
     .catch((err) => {
       console.log(err);
