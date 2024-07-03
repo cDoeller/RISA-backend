@@ -18,6 +18,21 @@ router.get("/", (req, res) => {
     });
 });
 
+// GET / ADMIN SEARCH
+router.get("/search-cms", isAuthenticated, (req, res) => {
+  const { name } = req.query;
+  const searchQuery = { name: { $regex: name, $options: "i" } };
+
+  Contributor.find(searchQuery)
+    .then((contributors) => {
+      res.status(200).json(contributors);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // GET :: id
 router.get("/:id", isAuthenticated, (req, res) => {
   Contributor.findById(req.params.id)
