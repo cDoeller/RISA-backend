@@ -9,7 +9,7 @@ const contributorSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Name is Required."],
-    unique:true,
+    unique: true,
   },
   short_bio: {
     type: String,
@@ -36,16 +36,14 @@ const contributorSchema = new mongoose.Schema({
 
 const Contributor = mongoose.model("Contributor", contributorSchema);
 
-module.exports = Contributor;
+// remove project middleware
+// > delete from projects
+contributorSchema.pre("remove", async function (next) {
+  await this.model("Project").updateMany(
+    { _id: { $in: this.contributors } },
+    { $pull: { contributors: this._id } }
+  );
+  next();
+});
 
-// {
-//     "name": "John Doe",
-//     "short_bio": "Web Developer with a passion for coding",
-//     "email": "johndoe@example.com",
-//     "projects": ["6134cc53050f06e8bf8b4567", "6134cc53050f06e8bf8b4568"],
-//     "website_url": "https://www.johndoe.com",
-//     "social_media": {
-//       "insta": "@johndoe",
-//       "x": "johndoe"
-//     }
-//   }
+module.exports = Contributor;
