@@ -1,5 +1,6 @@
 // import model
 const Contributor = require("../models/Contributor.model");
+const Project = require("../models/Project.model");
 // import Router Object
 const router = require("express").Router();
 // import auth middleware
@@ -47,15 +48,25 @@ router.get("/:id", isAuthenticated, (req, res) => {
 });
 
 // POST
-router.post("/", isAuthenticated, (req, res) => {
-  Contributor.create(req.body)
-    .then((newContributor) => {
-      res.status(200).json(newContributor);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json(err);
+router.post("/", isAuthenticated, async (req, res) => {
+  try {
+    const relatedProjectIds = req.body.projects;
+    // 1) find all related projects
+    const relatedProjects = await Project.find({
+      _id: { $in: relatedProjectIds },
     });
+    // 2) create the new contributor
+    const createdContributor = await Contributor.create(req.body);
+    // 3) Update the contributors array of each related project using forEach loop
+    relatedProjects.forEach(async (project) => {
+      project.contributors.push(createdContributor._id);
+      await project.save();
+    });
+    res.status(200).json(createdContributor);
+  } catch (err) {
+    res.status(400).json(err);
+    console.log(err);
+  }
 });
 
 // UPDATE / PATCH
