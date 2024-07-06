@@ -4,12 +4,12 @@ const projectSchema = new mongoose.Schema({
   label: {
     type: String,
     required: [true, "Title is Required."],
-    unique
+    unique:true,
   },
   title: {
     type: String,
     required: [true, "Title is Required."],
-    unique
+    unique:true,
   },
   description: {
     type: String,

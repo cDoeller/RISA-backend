@@ -4,12 +4,12 @@ const contributorSchema = new mongoose.Schema({
   label: {
     type: String,
     required: [true, "Name is Required."],
-    unique
+    unique: true,
   },
   name: {
     type: String,
     required: [true, "Name is Required."],
-    unique
+    unique:true,
   },
   short_bio: {
     type: String,

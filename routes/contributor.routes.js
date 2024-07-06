@@ -50,8 +50,8 @@ router.get("/:id", isAuthenticated, (req, res) => {
 // POST
 router.post("/", isAuthenticated, async (req, res) => {
   try {
-    const relatedProjectIds = req.body.projects;
     // 1) find all related projects
+    const relatedProjectIds = req.body.projects;
     const relatedProjects = await Project.find({
       _id: { $in: relatedProjectIds },
     });
