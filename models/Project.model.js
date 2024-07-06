@@ -65,17 +65,23 @@ const projectSchema = new mongoose.Schema({
 
 const Project = mongoose.model("Project", projectSchema);
 
-module.exports = Project;
+  // remove project middleware
+  // > delete from contributors
+  // > delete in related arr and as umbrella
+  projectSchema.pre('remove', async function(next) {
+    await this.model('Project').updateMany(
+      { _id: { $in: this.related_projects } },
+      { $pull: { related_projects: this._id } }
+    );
+    await this.model('Project').updateMany(
+      { umbrella_project: this._id },
+      { $set: { umbrella_project: null } }
+    );
+    await this.model('Contributor').updateMany(
+      { _id: { $in: this.contributors } },
+      { $pull: { projects: this._id } }
+    );
+    next();
+  });
 
-// {
-//   "title": "Speculative Sensing",
-//   "description": "This is a sample project description.",
-//   "short_description": "Short description of the project.",
-//   "year": 2022,
-//   "images_url": [
-//     "https://www.christiandoeller.de/Images/works/specSens/sps2_4_Q0A9379.jpeg",
-//     "hhttps://www.christiandoeller.de/Images/works/specSens/sps1_Q0A9355.jpeg"
-//   ],
-//   "tags": "installation",
-//   "link": "https://www.christiandoeller.de/specSens.html"
-// }
+module.exports = Project;
