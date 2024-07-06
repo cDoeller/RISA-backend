@@ -55,18 +55,38 @@ router.get("/:id", (req, res) => {
 // POST :: project
 router.post("/", isAuthenticated, async (req, res) => {
   try {
+    // create
+    const newProject = await Project.create(req.body);
+    // * PROJECTS UPDATES
+    if (newProject.is_umbrella_project) {
+      // 1) umbrella = set as umbrella proj of related
+      const updatedProject = await Project.updateMany(
+        { _id: { $in: newProject.related_projects } },
+        { $set: { umbrella_project: newProject._id } },
+        { new: true }
+      );
+    } else {
+      // 2) !umbrella / related = push in related proj array of umbrella
+      if (newProject.umbrella_project) {
+       const updatedProject = await Project.findByIdAndUpdate(
+          newProject.umbrella_project,
+          { $addToSet: { related_projects: newProject._id } },
+          { new: true }
+        );
+      }
+    }
+    // * CONTRIBUTOR UPDATE
     // 1) find related contributors
-    const relatedContributorIds = req.body.contributors;
+    const relatedContributorIds = newProject.contributors;
     const relatedContributors = await Contributor.find({
       _id: { $in: relatedContributorIds },
     });
-    // 2) create new project
-    const newProject = await Project.create(req.body);
-    // 3) add project to contributors
+    // 2) add project to contributors
     relatedContributors.forEach(async (c) => {
       c.projects.push(newProject._id);
       await c.save();
     });
+    // response
     res.status(200).json(newProject);
   } catch (err) {
     console.log(err);
