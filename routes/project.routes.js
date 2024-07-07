@@ -68,7 +68,7 @@ router.post("/", isAuthenticated, async (req, res) => {
     } else {
       // 2) !umbrella / related = push in related proj array of umbrella
       if (newProject.umbrella_project) {
-       const updatedProject = await Project.findByIdAndUpdate(
+        const updatedProject = await Project.findByIdAndUpdate(
           newProject.umbrella_project,
           { $addToSet: { related_projects: newProject._id } },
           { new: true }
@@ -95,15 +95,103 @@ router.post("/", isAuthenticated, async (req, res) => {
 });
 
 // UPDATE one project
-router.patch("/:id", isAuthenticated, (req, res) => {
-  Project.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    .then((updatedProject) => {
-      res.status(200).json(updatedProject);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json(err);
-    });
+router.patch("/:id", isAuthenticated, async (req, res) => {
+  try {
+    const newProject = req.body;
+    const oldProject = await Project.findByIdAndUpdate(req.params.id, req.body);
+    // HANDLE RELATIONS
+    if (newProject.is_umbrella_project) {
+      // >> Umbrella: handle related projects
+      // 1) compare old and new related porjects
+      const newRelated = newProject.related_projects.map((id) => id.toString());
+      const oldRelated = oldProject.related_projects.map((id) => id.toString());
+      const addedRelated = newRelated.filter((project) => {
+        return !oldRelated.includes(project);
+      });
+      const removedRelated = oldRelated.filter((project) => {
+        return !newRelated.includes(project);
+      });
+      // 2) handle added related
+      if (addedRelated.length > 0) {
+        const newRelationsNeeded = await Project.find({
+          _id: { $in: addedRelated },
+        });
+        for (const project of newRelationsNeeded) {
+          for (const addedId of addedRelated) {
+            project.related_projects.push(addedId);
+            await project.save();
+          }
+        }
+      }
+      // 3) handle removed related
+      if (removedRelated.length > 0) {
+        const relationsToDelete = await Project.find({
+          _id: { $in: removedRelated },
+        });
+        for (const project of relationsToDelete) {
+          for (const removedId of removedRelated) {
+            const index = project.related_projects.indexOf(removedId);
+            if (index > -1) {
+              project.related_projects.splice(index, 1);
+              await project.save();
+            }
+          }
+        }
+      }
+    } else {
+      // >> !umbrella / related: handle projects of contributors
+      // 1) compare old and new contributors
+      const newContributorIds = newProject.contributors.map((id) =>
+        id.toString()
+      );
+      const oldContributorIds = oldProject.contributors.map((id) =>
+        id.toString()
+      );
+      console.log("old:", oldContributorIds);
+      console.log("new:", newContributorIds);
+      const addedContrib = newContributorIds.filter((contributor) => {
+        return !oldContributorIds.includes(contributor);
+      });
+      const removedContrib = oldContributorIds.filter((contributor) => {
+        return !newContributorIds.includes(contributor);
+      });
+      console.log("added:", addedContrib);
+      console.log("removed:", removedContrib);
+      // 2) handle added contributors
+      if (addedContrib.length > 0) {
+        const newRelationsNeeded = await Contributor.find({
+          _id: { $in: addedContrib },
+        });
+        console.log("new relations needed:", newRelationsNeeded);
+        for (const contributor of newRelationsNeeded) {
+          for (const id of addedContrib) {
+            contributor.projects.push(id.toString());
+            await contributor.save();
+          }
+          console.log("contributor projects:", contributor.projects);
+        }
+      }
+      // 3) handle removed contributors
+      if (removedContrib.length > 0) {
+        const relationsToDelete = await Contributor.find({
+          _id: { $in: removedContrib },
+        });
+        for (const contributor of relationsToDelete) {
+          for (const removedId of removedContrib) {
+            const index = contributor.projects.indexOf(removedId);
+            if (index > -1) {
+              contributor.projects.splice(index, 1);
+              await contributor.save();
+            }
+          }
+        }
+      }
+    }
+    res.status(200).json(newProject);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
 });
 
 // DELETE
