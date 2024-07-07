@@ -26,7 +26,7 @@ const projectSchema = new mongoose.Schema({
   },
   images_url: {
     type: [String],
-    required: [true, "Upload at least one image"],
+    // required: [true, "Upload at least one image"],
   },
   is_umbrella_project: {
     type: Boolean,
