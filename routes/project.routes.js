@@ -103,6 +103,9 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
     if (newProject.is_umbrella_project) {
       // >> Umbrella: handle related projects
       // 1) compare old and new related porjects
+      // ********************************************* PROBLEM
+      // ---> iself appears in related
+      // ---> update umbrella in related! missing
       const newRelated = newProject.related_projects.map((id) => id.toString());
       const oldRelated = oldProject.related_projects.map((id) => id.toString());
       const addedRelated = newRelated.filter((project) => {
@@ -141,12 +144,16 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
     } else {
       // >> !umbrella / related: handle projects of contributors
       // 1) compare old and new contributors
+      // {genre:{$in:["Crime","Drama"]}}
+      // ********************************************* PROBLEM
       const newContributorIds = newProject.contributors.map((id) =>
         id.toString()
       );
       const oldContributorIds = oldProject.contributors.map((id) =>
         id.toString()
       );
+      // const newContributorIds = newProject.contributors;
+      // const oldContributorIds = oldProject.contributors;
       console.log("old:", oldContributorIds);
       console.log("new:", newContributorIds);
       const addedContrib = newContributorIds.filter((contributor) => {
@@ -164,10 +171,9 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
         });
         console.log("new relations needed:", newRelationsNeeded);
         for (const contributor of newRelationsNeeded) {
-          for (const id of addedContrib) {
-            contributor.projects.push(id);
+            // ********************************************* PROBLEM
+            contributor.projects.push(oldProject._id);
             await contributor.save();
-          }
           console.log("contributor projects:", contributor.projects);
         }
       }
@@ -177,13 +183,11 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
           _id: { $in: removedContrib },
         });
         for (const contributor of relationsToDelete) {
-          for (const removedId of removedContrib) {
-            const index = contributor.projects.indexOf(removedId);
+          const index = contributor.projects.indexOf(oldProject._id);
             if (index > -1) {
               contributor.projects.splice(index, 1);
               await contributor.save();
             }
-          }
         }
       }
     }
