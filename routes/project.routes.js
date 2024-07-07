@@ -165,7 +165,7 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
         console.log("new relations needed:", newRelationsNeeded);
         for (const contributor of newRelationsNeeded) {
           for (const id of addedContrib) {
-            contributor.projects.push(id.toString());
+            contributor.projects.push(id);
             await contributor.save();
           }
           console.log("contributor projects:", contributor.projects);
