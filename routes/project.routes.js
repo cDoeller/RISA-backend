@@ -103,9 +103,8 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
     if (newProject.is_umbrella_project) {
       // >> Umbrella: handle related projects
       // 1) compare old and new related porjects
-      // ********************************************* PROBLEM
-      // ---> iself appears in related
-      // ---> update umbrella in related! missing
+      // ********************************************* PROBLEMS
+      // ---> related dont appear, umbrella works
       const newRelated = newProject.related_projects.map((id) => id.toString());
       const oldRelated = oldProject.related_projects.map((id) => id.toString());
       console.log("new Related", newRelated);
@@ -129,7 +128,7 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
             // a) set umbrella project
             project.umbrella_project = oldProject._id;
             // b) set related projects
-            if (addedId !== project._id) {
+            if (addedId !== project._id.toString()) {
               project.related_projects.push(addedId);
             }
             await project.save();
@@ -146,7 +145,7 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
             // a) reset umbrella project
             project.umbrella_project = null;
             // b) remove related
-            if (removedId !== project._id) {
+            if (removedId !== project._id.toString()) {
               const index = project.related_projects.indexOf(removedId);
               index > -1 && project.related_projects.splice(index, 1);
             }
