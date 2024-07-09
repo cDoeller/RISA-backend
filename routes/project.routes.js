@@ -120,16 +120,16 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
       // 2) handle added related
       if (addedRelated.length > 0) {
         const newRelationsNeeded = await Project.find({
-          _id: { $in: addedRelated },
+          _id: { $in: newRelated },
         });
         console.log("projects to change", newRelationsNeeded);
         for (const project of newRelationsNeeded) {
-          for (const addedId of addedRelated) {
+          for (const id of newRelated) {
             // a) set umbrella project
             project.umbrella_project = oldProject._id;
             // b) set related projects
-            if (addedId !== project._id.toString()) {
-              project.related_projects.push(addedId);
+            if (id !== project._id.toString()) {
+              project.related_projects.push(id);
             }
             await project.save();
           }
@@ -147,7 +147,7 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
             // b) remove related
             if (removedId !== project._id.toString()) {
               const index = project.related_projects.indexOf(removedId);
-              index > -1 && project.related_projects.splice(index, 1);
+              if (index > -1) project.related_projects.splice(index, 1);
             }
             await project.save();
           }
