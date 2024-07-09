@@ -103,26 +103,19 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
     if (newProject.is_umbrella_project) {
       // >> Umbrella: handle related projects
       // 1) compare old and new related porjects
-      // ********************************************* PROBLEMS
-      // ---> related dont appear, umbrella works
       const newRelated = newProject.related_projects.map((id) => id.toString());
       const oldRelated = oldProject.related_projects.map((id) => id.toString());
-      console.log("new Related", newRelated);
-      console.log("old Related", oldRelated);
       const addedRelated = newRelated.filter((project) => {
         return !oldRelated.includes(project);
       });
       const removedRelated = oldRelated.filter((project) => {
         return !newRelated.includes(project);
       });
-      console.log("added", addedRelated);
-      console.log("removed", removedRelated);
       // 2) handle added related
       if (addedRelated.length > 0) {
         const newRelationsNeeded = await Project.find({
           _id: { $in: newRelated },
         });
-        console.log("projects to change", newRelationsNeeded);
         for (const project of newRelationsNeeded) {
           for (const id of newRelated) {
             // a) set umbrella project
@@ -162,16 +155,12 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
       const oldContributorIds = oldProject.contributors.map((id) =>
         id.toString()
       );
-      // console.log("old:", oldContributorIds);
-      // console.log("new:", newContributorIds);
       const addedContrib = newContributorIds.filter((contributor) => {
         return !oldContributorIds.includes(contributor);
       });
       const removedContrib = oldContributorIds.filter((contributor) => {
         return !newContributorIds.includes(contributor);
       });
-      // console.log("added:", addedContrib);
-      // console.log("removed:", removedContrib);
       // 2) handle added contributors
       if (addedContrib.length > 0) {
         const newRelationsNeeded = await Contributor.find({
@@ -179,10 +168,8 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
         });
         // console.log("new relations needed:", newRelationsNeeded);
         for (const contributor of newRelationsNeeded) {
-          // ********************************************* PROBLEM
           contributor.projects.push(oldProject._id);
           await contributor.save();
-          // console.log("contributor projects:", contributor.projects);
         }
       }
       // 3) handle removed contributors

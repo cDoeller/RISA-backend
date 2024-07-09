@@ -70,16 +70,53 @@ router.post("/", isAuthenticated, async (req, res) => {
 });
 
 // UPDATE / PATCH
-router.patch("/:id", isAuthenticated, (req, res) => {
-  Contributor.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    .then((updatedContributor) => {
-      console.log(updatedContributor);
-      res.status(200).json(updatedContributor);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json(err);
+router.patch("/:id", isAuthenticated, async (req, res) => {
+  try {
+    const oldContributor = await Contributor.findByIdAndUpdate(
+      req.params.id,
+      req.body
+    );
+    const newContributor = req.body;
+    // UPDATE PROJECTS RELATIONS
+    // compare old and new projects
+    const oldProjects = oldContributor.projects.map((id) => {
+      return id.toString();
     });
+    const newProjects = newContributor.projects.map((id) => {
+      return id.toString();
+    });
+    const addedProjects = newProjects.filter((project) => {
+      return !oldProjects.includes(project);
+    });
+    const removedProjects = oldProjects.filter((project) => {
+      return !newProjects.includes(project);
+    });
+    // added
+    if (addedProjects.length > 0) {
+      const newRelationsNeeded = await Project.find({
+        _id: { $in: addedProjects },
+      });
+      for (const project of newRelationsNeeded) {
+        project.contributors.push(oldContributor._id);
+        await project.save();
+      }
+    }
+    // removed
+    if (removedProjects.length > 0) {
+      const RelationsToBeRemoved = await Project.find({
+        _id: { $in: removedProjects },
+      });
+      for (const project of RelationsToBeRemoved) {
+        const index = project.contributors.indexOf(oldContributor._id);
+        project.contributors.splice(index, 1);
+        await project.save();
+      }
+    }
+    res.status(200).json(newContributor);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
 });
 
 // DELETE
