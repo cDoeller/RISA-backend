@@ -15,6 +15,7 @@ const contributorSchema = new mongoose.Schema(
     short_bio: {
       type: String,
       required: [true, "Short bio is Required."],
+      maxLength: [500, "shortbio max length of 500 char"]
     },
     email: {
       type: String,
