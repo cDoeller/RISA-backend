@@ -98,13 +98,17 @@ router.post("/", isAuthenticated, async (req, res) => {
 router.patch("/:id", isAuthenticated, async (req, res) => {
   try {
     const newProject = req.body;
+    console.log("newProject", newProject);
     const oldProject = await Project.findByIdAndUpdate(req.params.id, req.body);
+    console.log("oldProject" , oldProject);
     // HANDLE RELATIONS
     if (newProject.is_umbrella_project) {
       // >> Umbrella: handle related projects
       // 1) compare old and new related porjects
       const newRelated = newProject.related_projects.map((id) => id.toString());
       const oldRelated = oldProject.related_projects.map((id) => id.toString());
+      console.log("newRelated", newRelated)
+      console.log("oldRelated", oldRelated)
       const addedRelated = newRelated.filter((project) => {
         return !oldRelated.includes(project);
       });

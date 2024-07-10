@@ -12,9 +12,15 @@ const projectSchema = new mongoose.Schema(
       required: [true, "Title is Required."],
       unique: true,
     },
+    abstract: {
+      type: String,
+      required: [true, "Abstract is Required."],
+      maxLength: [250, "abstract max length of 250 char"],
+    },
     description: {
       type: String,
       required: [true, "Description is Required."],
+      maxLength: [1500, "description max length of 1500 char"],
     },
     contributors: [
       {
