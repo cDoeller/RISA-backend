@@ -100,15 +100,15 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
     const newProject = req.body;
     console.log("newProject", newProject);
     const oldProject = await Project.findByIdAndUpdate(req.params.id, req.body);
-    console.log("oldProject" , oldProject);
+    console.log("oldProject", oldProject);
     // HANDLE RELATIONS
     if (newProject.is_umbrella_project) {
       // >> Umbrella: handle related projects
       // 1) compare old and new related porjects
       const newRelated = newProject.related_projects.map((id) => id.toString());
       const oldRelated = oldProject.related_projects.map((id) => id.toString());
-      console.log("newRelated", newRelated)
-      console.log("oldRelated", oldRelated)
+      console.log("newRelated", newRelated);
+      console.log("oldRelated", oldRelated);
       const addedRelated = newRelated.filter((project) => {
         return !oldRelated.includes(project);
       });
@@ -123,9 +123,16 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
         for (const project of newRelationsNeeded) {
           for (const id of newRelated) {
             // a) set umbrella project
-            project.umbrella_project = oldProject._id;
+            if (project.umbrella_project !== oldProject._id) {
+              project.umbrella_project = oldProject._id;
+            }
             // b) set related projects
-            if (id !== project._id.toString()) {
+            // > dont include itself in itlsef
+            // > dont include already included
+            if (
+              id !== project._id.toString() &&
+              !project.related_projects.includes(id)
+            ) {
               project.related_projects.push(id);
             }
             await project.save();
@@ -134,10 +141,11 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
       }
       // 3) handle removed related
       if (removedRelated.length > 0) {
-        const relationsToDelete = await Project.find({
+        // a) remove relations in removed projects
+        const RelationsToDeleteRemoved = await Project.find({
           _id: { $in: removedRelated },
         });
-        for (const project of relationsToDelete) {
+        for (const project of RelationsToDeleteRemoved) {
           for (const removedId of removedRelated) {
             // a) reset umbrella project
             project.umbrella_project = null;
@@ -148,6 +156,20 @@ router.patch("/:id", isAuthenticated, async (req, res) => {
             }
             await project.save();
           }
+        }
+      }
+      // b) remove relations in still related projects
+      const RelationsToDeleteRemaining = await Project.find({
+        _id: { $in: newRelated },
+      });
+      for (const project of RelationsToDeleteRemaining) {
+        for (const removedId of removedRelated) {
+          // remove removed related
+          if (removedId !== project._id.toString()) {
+            const index = project.related_projects.indexOf(removedId);
+            if (index > -1) project.related_projects.splice(index, 1);
+          }
+          await project.save();
         }
       }
     } else {
