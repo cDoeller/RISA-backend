@@ -22,11 +22,28 @@ router.get("/", (req, res) => {
     });
 });
 
+// GET / TAG SEARCH
+router.get("/search-frontend", (req, res) => {
+  const { tags } = req.query;
+  const tagsArray = tags.split(",");
+
+  let searchQuery = {};
+  if (tags) searchQuery = { tags: { $in: tagsArray } };
+  
+  Project.find(searchQuery)
+    .then((projects) => {
+      res.status(200).json(projects);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // GET / ADMIN SEARCH
 router.get("/search-cms", isAuthenticated, (req, res) => {
   const { title } = req.query;
   const searchQuery = { title: { $regex: title, $options: "i" } };
-
   Project.find(searchQuery)
     .then((projects) => {
       res.status(200).json(projects);
