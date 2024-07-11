@@ -19,7 +19,23 @@ router.get("/", (req, res) => {
     });
 });
 
-// GET / ADMIN SEARCH
+// GET / FRONTEND NAME SEARCH
+router.get("/search-frontend", (req, res) => {
+  const { name } = req.query;
+  const searchQuery = { name: { $regex: name, $options: "i" } };
+
+  Contributor.find(searchQuery)
+    .populate("projects")
+    .then((contributors) => {
+      res.status(200).json(contributors);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
+// GET / ADMIN NAME SEARCH
 router.get("/search-cms", isAuthenticated, (req, res) => {
   const { name } = req.query;
   const searchQuery = { name: { $regex: name, $options: "i" } };
