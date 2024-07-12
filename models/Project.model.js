@@ -92,6 +92,10 @@ projectSchema.pre("remove", async function (next) {
     { _id: { $in: this.contributors } },
     { $pull: { projects: this._id } }
   );
+  await this.model("News").updateMany(
+    { _id: { $in: this.related_projects } },
+    { $pull: { related_projects: this._id } }
+  );
   next();
 });
 
