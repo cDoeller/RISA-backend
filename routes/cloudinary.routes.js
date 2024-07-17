@@ -6,7 +6,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 // body form key must be called "file"
 router.post(
     "/single",
-    fileUploader.single("file"),
+    fileUploader.single("files"),
     isAuthenticated,
     (req, res, next) => {
       if (!req.file) {

@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const newsSchema = new mongoose.Schema(
   {
+    label: {
+      type: String,
+      required: [true, "Label is Required."],
+      unique: true,
+    },
     title: {
       type: String,
       required: [true, "Title is Required."],
@@ -13,7 +18,7 @@ const newsSchema = new mongoose.Schema(
       maxLength: [500, "description max length of 500 char"],
     },
     date: {
-      type: Number,
+      type: String,
     },
     image_url: {
       type: String,
