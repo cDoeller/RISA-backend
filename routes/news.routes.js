@@ -54,7 +54,7 @@ router.get("/search-cms", isAuthenticated, (req, res) => {
 // GET :: id
 router.get("/:id", (req, res) => {
   News.findById(req.params.id)
-    .populate("research_projects")
+    .populate("related_projects")
     .then((news) => {
       res.status(200).json(news);
     })
