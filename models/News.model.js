@@ -20,6 +20,17 @@ const newsSchema = new mongoose.Schema(
     date: {
       type: String,
     },
+    end_date: {
+      type: String,
+    },
+    is_event: {
+      type: Boolean,
+      default: false,
+    },
+    has_end_date: {
+      type: Boolean,
+      default: false,
+    },
     image_url: {
       type: String,
     },
