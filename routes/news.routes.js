@@ -20,6 +20,22 @@ router.get("/", (req, res) => {
     });
 });
 
+// GET LATEST
+router.get("/latest", (req, res) => {
+  // SORT BY DATE
+  News.find()
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .populate("related_projects")
+    .then((news) => {
+      res.status(200).json(news);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // GET / FRONTEND NAME SEARCH
 // router.get("/search-frontend", (req, res) => {
 //   const { name } = req.query;
