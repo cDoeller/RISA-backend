@@ -10,6 +10,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 router.get("/", (req, res) => {
   // SORT BY DATE
   News.find()
+    .sort({ createdAt: -1 })
     .populate("related_projects")
     .then((news) => {
       res.status(200).json(news);
