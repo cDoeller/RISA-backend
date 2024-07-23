@@ -18,6 +18,19 @@ router.get("/", (req, res) => {
     });
 });
 
+// POST
+router.post("/", (req, res) => {
+  const data = req.body
+  General.create(data)
+    .then((generalData) => {
+      res.status(200).json(generalData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // UPDATE
 router.patch("/:id", isAuthenticated, async (req, res) => {
   try {
