@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const generalSchema = new mongoose.Schema(
   {
+    about_headline_landing: {
+      type: String,
+    },
     about_short: {
       type: String,
       maxLength: [250, "abstract max length of 250 char"],
@@ -36,7 +39,6 @@ const generalSchema = new mongoose.Schema(
 const General = mongoose.model("General", generalSchema);
 
 module.exports = General;
-
 
 // {
 //   "about_short": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec massa eget dolor tincidunt varius sit amet at nisi.",
