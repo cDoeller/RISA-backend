@@ -28,8 +28,23 @@ router.get("/search-frontend", (req, res) => {
   const tagsArray = tags.split(",");
 
   let searchQuery = {};
-  if (tags) searchQuery = { tags: { $in: tagsArray } };
-  
+
+  if (tags && tags.includes("research projects")) {
+    const index = tagsArray.indexOf("research projects");
+    tagsArray.splice(index, 1);
+    if (tagsArray.length > 0) {
+      searchQuery = {
+        $and: [{ tags: { $in: tagsArray } }, { is_umbrella_project: true }],
+      };
+    } else {
+      searchQuery = { is_umbrella_project: true };
+    }
+  } else {
+    if (tags) searchQuery = { tags: { $in: tagsArray } };
+  }
+
+  console.log(searchQuery);
+
   Project.find(searchQuery)
     .then((projects) => {
       res.status(200).json(projects);
