@@ -10,6 +10,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 // GET :: all projects
 router.get("/", (req, res) => {
   Project.find()
+    .sort({ year: -1 })
     .populate("contributors")
     .populate("umbrella_project")
     .populate("related_projects")
@@ -28,7 +29,6 @@ router.get("/search-frontend", (req, res) => {
   const tagsArray = tags.split(",");
 
   let searchQuery = {};
-
   if (tags && tags.includes("research projects")) {
     const index = tagsArray.indexOf("research projects");
     tagsArray.splice(index, 1);
@@ -43,9 +43,8 @@ router.get("/search-frontend", (req, res) => {
     if (tags) searchQuery = { tags: { $in: tagsArray } };
   }
 
-  console.log(searchQuery);
-
   Project.find(searchQuery)
+    .sort({ year: -1 })
     .then((projects) => {
       res.status(200).json(projects);
     })
@@ -60,6 +59,7 @@ router.get("/search-cms", isAuthenticated, (req, res) => {
   const { title } = req.query;
   const searchQuery = { title: { $regex: title, $options: "i" } };
   Project.find(searchQuery)
+    .sort({ year: -1 })
     .then((projects) => {
       res.status(200).json(projects);
     })
